@@ -47,19 +47,19 @@ impl GlContext {
         parent: &impl HasRawWindowHandle,
         config: GlConfig,
     ) -> Result<GlContext, GlError> {
-        let handle = if let Ok(RawWindowHandle::Xlib(handle)) = parent.raw_window_handle() {
+        let handle = if let RawWindowHandle::Xlib(handle) = parent.raw_window_handle() {
             handle
         } else {
             return Err(GlError::InvalidWindowHandle);
         };
 
-        if (handle.window as *const xlib::_XDisplay).is_null() {
+        if handle.display.is_null() {
             return Err(GlError::InvalidWindowHandle);
         }
 
         let prev_callback = xlib::XSetErrorHandler(Some(err_handler));
 
-        let display = handle.window as *mut xlib::_XDisplay;
+        let display = handle.display as *mut xlib::_XDisplay;
 
         let screen = xlib::XDefaultScreen(display);
 
